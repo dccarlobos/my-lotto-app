@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lucky Numbers</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background-color: #eef2f7;
+      padding: 40px 20px;
+    }
+
+    h1 { color: #2c3e50; font-size: 28px; margin-bottom: 15px; }
+    p { font-size: 16px; margin-bottom: 15px; color: #555; }
+    select {
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 25px;
+      outline: none;
+    }
+
+    .numbers {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px 0;
+      min-height: 60px;
+      align-items: center;
+    }
+
+    .ball {
+  width: 55px;
+  height: 55px;
+  background: linear-gradient(135deg, #f1c40f, #e67e22); /* warm yellow → orange */
+  color: #000; /* black numbers */
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+    .ball:hover { transform: scale(1.1); }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .buttons button {
+      padding: 12px 28px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: background-color 0.3s, transform 0.2s;
+      width: 180px;
+    }
+
+    .buttons button:hover {
+      background-color: #1d6fa5;
+      transform: translateY(-2px);
+    }
+
+    @media(max-width: 400px) {
+      .ball { width: 45px; height: 45px; font-size: 16px; }
+      .buttons button { width: 140px; padding: 10px 20px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Your Lucky Numbers</h1>
+
+  <p>Select Lotto Type:</p>
+<select id="lottoType">
+  <option value="58">6/58</option>
+  <option value="55">6/55</option>
+  <option value="49">6/49</option>
+  <option value="45">6/45</option>
+  <option value="42">6/42</option>
+</select>
+
+  <div class="numbers" id="pickNumbers"></div>
+
+  <div class="buttons">
+    <button onclick="generatePicks()">Generate Again</button>
+    <button onclick="saveNumbers()">Save</button>
+    <button onclick="location.href='picks.html'">Back</button>
+  </div>
+
+  <script>
+    // Load saved numbers on page load
+    window.onload = function() {
+      const savedNumbers = localStorage.getItem('luckyNumbers');
+      const savedType = localStorage.getItem('lottoType');
+
+      if(savedNumbers) {
+        const numbers = savedNumbers.split(',').map(n => n.trim());
+        updateBalls(numbers);
+      }
+
+      if(savedType) {
+        document.getElementById('lottoType').value = savedType;
+      }
+    }
+
+    function generatePicks() {
+      const select = document.getElementById('lottoType');
+      const currentMax = parseInt(select.value);
+      let picks = [];
+      while(picks.length < 6) {
+        let num = Math.floor(Math.random() * currentMax) + 1;
+        if(!picks.includes(num)) picks.push(num);
+      }
+      updateBalls(picks);
+    }
+
+    function updateBalls(numbers) {
+      const container = document.getElementById('pickNumbers');
+      container.innerHTML = '';
+      numbers.forEach(num => {
+        const ball = document.createElement('div');
+        ball.className = 'ball';
+        ball.innerText = num;
+        container.appendChild(ball);
+      });
+    }
+
+    function saveNumbers() {
+      const balls = document.querySelectorAll('.ball');
+      if(balls.length === 0) {
+        alert('Please generate numbers first!');
+        return;
+      }
+      let picks = [];
+      balls.forEach(ball => picks.push(ball.innerText));
+      localStorage.setItem('luckyNumbers', picks);
+      localStorage.setItem('lottoType', document.getElementById('lottoType').value);
+      alert('Numbers saved successfully!');
+      // Numbers stay visible, no need to re-render
+    }
+  </script>
+</body>
+</html>
