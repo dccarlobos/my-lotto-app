@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f0f0;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .button-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    button {
+      padding: 10px 25px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      background-color: #3498db; /* blue */
+      color: white;
+      width: 220px;
+    }
+
+    button:hover {
+      background-color: #2980b9; /* darker blue */
+    }
+
+    .back-btn {
+      margin-top: 25px;
+      background-color: #3498db; /* also blue */
+    }
+
+    .back-btn:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Settings</h1>
+  <div class="button-container">
+    <button onclick="alert('Share this app link: https://example.com')">Share App</button>
+    <button onclick="alert('Thank you for rating us 5 stars! ⭐⭐⭐⭐⭐')">Rate 5 Stars</button>
+    <button onclick="alert('Contact us at: support@example.com')">Contact Us</button>
+    <button onclick="alert('Privacy Policy page coming soon!')">Privacy Policy</button>
+    <button onclick="alert('This is PCSO Lotto Results App v1.0 \n\nLicenses: MIT License')">About App & Licenses</button>
+  </div>
+
+  <button class="back-btn" onclick="location.href='second.html'">Back</button>
+
+</body>
+</html>

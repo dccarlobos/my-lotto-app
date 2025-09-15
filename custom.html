@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Numbers</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      background-color: #eef2f7;
+      padding: 40px 20px;
+    }
+
+    h1 {
+      color: #2c3e50;
+      font-size: 28px;
+      margin-bottom: 15px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 10px;
+    }
+
+    select {
+      font-size: 16px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 20px;
+      outline: none;
+    }
+
+    .numbers {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 20px 0;
+      min-height: 60px;
+      align-items: center;
+    }
+
+    .ball {
+      width: 55px;
+      height: 55px;
+      background: linear-gradient(135deg, #f1c40f, #e67e22);
+      color: #000;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 50%;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      flex-shrink: 0;
+      transition: transform 0.2s;
+    }
+
+    .ball:hover {
+      transform: scale(1.1);
+    }
+
+    .inputs {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center; /* center horizontally */
+  gap: 8px; /* space between inputs */
+}
+
+.inputs input {
+  width: 45px;
+  font-size: 18px;
+  text-align: center;
+  padding: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .buttons button {
+      padding: 12px 28px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #3498db;
+      color: white;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: background-color 0.3s, transform 0.2s;
+      width: 180px;
+    }
+
+    .buttons button:hover {
+      background-color: #1d6fa5;
+      transform: translateY(-2px);
+    }
+
+    @media(max-width: 400px) {
+      .inputs input { width: 35px; font-size: 16px; margin: 0 3px; }
+      .ball { width: 45px; height: 45px; font-size: 16px; }
+      .buttons button { width: 140px; padding: 10px 20px; font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+  <h1>Enter Your Custom Numbers</h1>
+
+  <p>Select Lotto Type:</p>
+<select id="lottoType" onchange="updateMax()">
+  <option value="58">6/58</option>
+  <option value="55">6/55</option>
+  <option value="49">6/49</option>
+  <option value="45">6/45</option>
+  <option value="42">6/42</option>
+</select>
+
+  <div class="numbers" id="pickNumbers"></div>
+
+  <p>Enter numbers:</p>
+  <div class="inputs">
+    <input type="number" id="num1">
+    <input type="number" id="num2">
+    <input type="number" id="num3">
+    <input type="number" id="num4">
+    <input type="number" id="num5">
+    <input type="number" id="num6">
+  </div>
+
+  <div class="buttons">
+    <button onclick="submitCustomNumbers()">Submit</button>
+    <button onclick="saveNumbers()">Save</button>
+    <button onclick="location.href='picks.html'">Back</button>
+  </div>
+
+  <script>
+    let currentMax = 58;
+    const numInputs = [1,2,3,4,5,6].map(i => document.getElementById('num'+i));
+
+    window.onload = function() {
+      const saved = localStorage.getItem('customNumbers');
+      const savedType = localStorage.getItem('lottoType');
+      if(saved) {
+        const nums = JSON.parse(saved);
+        updateBalls(nums);
+        nums.forEach((n,i) => { if(numInputs[i]) numInputs[i].value = n; });
+      }
+      if(savedType) {
+        document.getElementById('lottoType').value = savedType;
+        updateMax();
+      } else {
+        updateMax();
+      }
+    }
+
+    function updateMax() {
+      currentMax = parseInt(document.getElementById('lottoType').value);
+      numInputs.forEach(input => input.value = '');
+    }
+
+    function submitCustomNumbers() {
+      let nums = [];
+      for(let i=0; i<6; i++){
+        let val = parseInt(numInputs[i].value);
+        if(val < 1 || val > currentMax || nums.includes(val) || isNaN(val)){
+          alert(`Please enter valid unique numbers between 1 and ${currentMax}.`);
+          return;
+        }
+        nums.push(val);
+      }
+      updateBalls(nums);
+    }
+
+    function updateBalls(numbers) {
+      const container = document.getElementById('pickNumbers');
+      container.innerHTML = '';
+      numbers.forEach(num => {
+        const ball = document.createElement('div');
+        ball.className = 'ball';
+        ball.innerText = num;
+        container.appendChild(ball);
+      });
+    }
+
+    function saveNumbers() {
+      let nums = [];
+      for(let i=0; i<6; i++){
+        let val = parseInt(numInputs[i].value) || 0;
+        nums.push(val);
+      }
+      localStorage.setItem('customNumbers', JSON.stringify(nums));
+      localStorage.setItem('lottoType', document.getElementById('lottoType').value);
+      alert('Numbers saved successfully!');
+    }
+  </script>
+</body>
+</html>

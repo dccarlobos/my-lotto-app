@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Guide Results</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      text-align: center; 
+      background: #fff; 
+      padding: 20px; 
+    }
+
+    /* Banner style */
+    .banner {
+      width: 100%;
+      height: 60px;
+      background-color: #cccccc; /* placeholder color */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px 0;
+      color: #333;
+      font-weight: bold;
+    }
+
+    h1 { 
+      font-size: 20px; 
+      margin-bottom: 10px; 
+    }
+
+    .grid { 
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: center; 
+      margin-top: 20px; 
+    }
+
+    .number-box { 
+      width: 60px; 
+      height: 60px; 
+      border: 1px solid #ccc; 
+      margin: 5px; 
+      border-radius: 8px; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      background: #f4f4f4; 
+    }
+
+    .number { 
+      font-size: 18px; 
+      font-weight: bold; 
+      color: #3498db; 
+    }
+
+    .freq { 
+      font-size: 12px; 
+      font-weight: bold; 
+    }
+
+    .freq.gray { color: #888; }
+    .freq.green { color: #27ae60; }
+    .freq.orange { color: #e67e22; }
+    .freq.red { color: #e74c3c; }
+
+    /* Hot & Cold Cards */
+    .hotcold-container {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 30px;
+      flex-wrap: wrap;
+    }
+    .hotcold-card {
+      flex: 1;
+      max-width: 200px;
+      padding: 15px;
+      border-radius: 10px;
+      color: white;
+      text-align: center;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    .hot-card { background: #e74c3c; }
+    .cold-card { background: #27ae60; }
+    .hotcold-title {
+      font-size: 16px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    .hotcold-numbers {
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 2px;
+    }
+
+    button { 
+      margin-top: 20px; 
+      padding: 8px 12px; 
+      background: #2980b9; 
+      color: white; 
+      border: none; 
+      border-radius: 5px; 
+      cursor: pointer; 
+    }
+    button:hover { background: #1f6391; }
+  </style>
+</head>
+<body>
+
+<!-- Top Banner -->
+<div class="banner">Banner Ad #1</div>
+
+<h1>Guide Results</h1>
+<p id="guideInfo"></p>
+
+<div class="grid" id="numberGrid"></div>
+
+<!-- Middle Banner -->
+<div class="banner">Banner Ad #2</div>
+
+<!-- Hot & Cold Numbers Section -->
+<div class="hotcold" id="hotColdSection"></div>
+
+<!-- Bottom Banner -->
+<div class="banner">Banner Ad #3</div>
+
+<button onclick="goBack()">Back</button>
+
+<script src="results-data.js"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const lotto = params.get('lotto');
+const period = parseInt(params.get('period')) || 1;
+
+const guideInfo = document.getElementById('guideInfo');
+const numberGrid = document.getElementById('numberGrid');
+const hotColdSection = document.getElementById('hotColdSection');
+const dates = Object.keys(resultsData).sort();
+
+if(lotto){
+  const periodText = period <= 30 ? `${period} days` : `${Math.round(period/30)} month(s)`;
+  guideInfo.textContent = `Lotto Type: ${lotto} | Time Period: ${periodText}`;
+
+  const today = new Date(dates[dates.length - 1]);
+  const cutoff = new Date(today);
+  cutoff.setDate(cutoff.getDate() - period);
+
+  const freqMap = {};
+  let maxNum = 0;
+
+  dates.forEach(date => {
+    const d = new Date(date);
+    if(d >= cutoff){
+      resultsData[date].forEach(item => {
+        if(item.name.startsWith(lotto) && item.combination !== "No results"){
+          const numbers = item.combination.split(/, | - /).map(n => n.trim()).filter(n => n!=='');
+          numbers.forEach(n => {
+            const num = parseInt(n, 10);
+            freqMap[num] = (freqMap[num] || 0) + 1;
+            if(num > maxNum) maxNum = num;
+          });
+        }
+      });
+    }
+  });
+
+  function getMaxByLotto(lottoName){
+    if(lottoName.includes("6/42")) return 42;
+    if(lottoName.includes("6/45")) return 45;
+    if(lottoName.includes("6/49")) return 49;
+    if(lottoName.includes("6/55")) return 55;
+    if(lottoName.includes("6/58")) return 58;
+    return maxNum > 0 ? maxNum : 60;
+  }
+
+  const finalMax = getMaxByLotto(lotto);
+
+  // Render main grid
+  for(let i=1; i<=finalMax; i++){
+    const count = freqMap[i] || 0;
+    let colorClass = "gray";
+    if(count >= 1 && count <= 2) colorClass = "green";
+    else if(count >= 3 && count <= 5) colorClass = "orange";
+    else if(count >= 6) colorClass = "red";
+
+    const box = document.createElement('div');
+    box.classList.add('number-box');
+    box.innerHTML = `<div class="number">${i}</div><div class="freq ${colorClass}">${count}×</div>`;
+    numberGrid.appendChild(box);
+  }
+
+  // Hot & Cold numbers
+  const sortedNumbers = Object.keys(freqMap).sort((a,b) => freqMap[b]-freqMap[a]);
+  const hotNumbers = sortedNumbers.slice(0, 5);
+  const coldNumbers = sortedNumbers.slice(-5);
+
+  hotColdSection.innerHTML = `
+    <div class="hotcold-container">
+      <div class="hotcold-card hot-card">
+        <div class="hotcold-title">Hot Numbers</div>
+        <div class="hotcold-numbers">${hotNumbers.join(', ')}</div>
+      </div>
+      <div class="hotcold-card cold-card">
+        <div class="hotcold-title">Cold Numbers</div>
+        <div class="hotcold-numbers">${coldNumbers.join(', ')}</div>
+      </div>
+    </div>
+  `;
+
+} else {
+  guideInfo.textContent = 'No guide information available.';
+}
+
+function goBack(){ window.history.back(); }
+</script>
+</body>
+</html>
